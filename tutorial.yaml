@@ -1,0 +1,33 @@
+---
+apiVesion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+specs:
+  containers:
+  - name: nginx-container
+    image: nginx
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: nginx-vol
+      mountPath: /usr/nginx/html
+  - name: sidecar-container
+    image: curlimages/curl
+    command: ["/bin/sh"]
+    args: ["-c", "echo Hello from the sidecar container; sleep 300"]
+multilineString: |
+  this is a multiline string
+  that should be all on one
+  next line
+# rediness probe
+command:
+  - /bin/sh
+  - -ec
+  - >-
+    mysql -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD -e 'SELECT 1' 
+
+
+
