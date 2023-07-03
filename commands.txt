@@ -63,4 +63,13 @@ k exec -it busybox-pod -- sh -c "netstat -lntp"
 k get po -o jsonpath='{.items[0]}'
 k get po -o jsonpath='{.items[0].metadata}' # show only metadata attribute
 k get po -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+k get po -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.podIP}{"\n"}{end}'
+k get po -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.podIP}{"\t"}{.status.startTime}{"\n"}{end}'
+k get po -o custom-columns=POD_NAME:.metadata.name,POD_IP:.status.podIP,CREATED_AT:.status.startTime
+# ts kubelet on worker node
+service kubelet status
+journalctl -u kubelet
+k config view
+k logs nginx-deployment-677d8ffdfd-6w2zq -c log-sidecar
+k create svc clusterip mydb-service --tcp=80:80
 
