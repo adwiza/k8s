@@ -69,3 +69,6 @@ iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
 ip link
 apt remove --purge kubeadm kubectl kubelet -y --allow-change-held-packages
 apt autoremove -y
+
+# Ingress
+helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --set controller.watchIngressWithoutClass=true
