@@ -1,0 +1,66 @@
+k auth can-i create deployments --namespace default
+# CERT generation
+openssl genrsa -out dev-adwiz.key 2048
+openssl req -new -key dev-adwiz.key -subj "/CN=Adwiz" -out dev-adwiz.csr
+
+# create file dev-adwiz-csr.yaml
+
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: dev-adwiz
+spec:
+  request: rfgdfgdfgdf
+  signerName: kubernetes.io/kube-apiserver-client
+  expirationSeconds: 86400  # one day
+  usages:
+  - client auth
+
+cat dev-adwiz.csr | base64 | tr -d "\n" put int into a ile dev-adwiz-csr.yaml to "request:" field
+k apply -f dev-adwiz-csr.yaml 
+k get csr
+cat .kube/config | grep kubernetes-admin -A2
+k certificates --help
+k certificate approve dev-adwiz
+k get csr dev-adwiz -o yaml
+echo 'cert' | base64 --decode
+ k --server https://172.31.7.2:6443 \
+ --certificate-authority /etc/kubernetes/pki/ca.crt \
+ --client-certificate dev-adwiz.crt \
+ --client-key dev-adwiz.key \
+get po
+base64 dev-adwiz.crt | tf -d "\n"
+base64 dev-adwiz.key | tf -d "\n"
+k --kubeconfig dev-adwiz.conf get po
+k --kubeconfig config apply -f dev-cr.yaml 
+k --kubeconfig config get clusterrole
+k --kubeconfig config describe clusterrole dev-cr
+k create clusterrolebinding
+k --kubeconfig config describe clusterrolebinding dev-crb
+k --kubeconfig config delete clusterrolebinding dev-crb
+k auth --kubeconfig config can-i create pod --as Adwiz
+k auth --kubeconfig config can-i get node --as Adwiz
+k auth --kubeconfig config can-i delete deployment --as Adwiz
+k create serviceaccount jenkins --dry-run=client -o yaml > jenkins-sa.yaml
+k describe serviceaccount jenkins
+k get secret jenkins-token-v6246
+k get secret jenkins-token-v6246 -o yaml
+k get cm -o yaml -n kube-system kubeadm-config
+k cluster-info
+k --server=https://172.31.7.2:6443 --certificate-authority /etc/kubernetes/pki/ca.crt --token $token get po
+k create role cicd-role --verb=create,update,list --resource=deployments,services --dry-run=client -o yaml > cicd-role.yaml
+k apply -f cicd-role.yaml
+k describe role cicd-role
+k create rolebinding cicd-binding --role=cicd-role --serviceaccount=default:jenkins --dry-run=client -o yaml > cicd-binding.yaml
+k apply -f cicd-binding.yaml
+k describe rolebinding cicd-binding
+k auth can-i create service --as system:serviceaccount:default:jenkins -n default
+# Trouble shooting
+k run debug-pod --image=busybox -it
+k attach debug-pod -c debug-pod -it
+k exec -it busybox-pod -- sh -c "printenv"
+k exec -it busybox-pod -- sh -c "netstat -lntp"
+k get po -o jsonpath='{.items[0]}'
+k get po -o jsonpath='{.items[0].metadata}' # show only metadata attribute
+k get po -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+
