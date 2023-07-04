@@ -72,4 +72,4 @@ journalctl -u kubelet
 k config view
 k logs nginx-deployment-677d8ffdfd-6w2zq -c log-sidecar
 k create svc clusterip mydb-service --tcp=80:80
-
+ k get pv

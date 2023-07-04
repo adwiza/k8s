@@ -21,8 +21,27 @@ spec:
               - containerPort: 80
             - name: log-sidecar
               image: busybox:1.28
-              command: ['sh', '-c', "while true; do echo sync app logs; sleep 20; done"]
-            initContainers:
-            - name: mydb-available
-              image: busybox:1.28
-              command: ['sh', '-c', "until nslookup mydb-service; do echo waiting for database; sleep 4; done"]
+              command: ['sh', '-c']
+              args:
+              - while true; do 
+                    echo sync app logs;
+                    printenv POD_NAME POD_SERVICE_ACCOUNT POD_IP;
+                    sleep 20; 
+                done;
+              env:
+              - name: POD_NAME
+                valueFrom:
+                    fieldRef:
+                        fieldPath: metadata.name
+              - name: POD_SERVICE_ACCOUNT
+                valueFrom:
+                    fieldRef:
+                        fieldPath: spec.serviceAccountName
+              - name: POD_IP
+                valueFrom:
+                    fieldRef:
+                        fieldPath: status.podIP     
+            # initContainers:
+            # - name: mydb-available
+            #   image: busybox:1.28
+            #   command: ['sh', '-c', "until nslookup mydb-service; do echo waiting for database; sleep 4; done"]
