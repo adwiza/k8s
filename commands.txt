@@ -72,4 +72,14 @@ journalctl -u kubelet
 k config view
 k logs nginx-deployment-677d8ffdfd-6w2zq -c log-sidecar
 k create svc clusterip mydb-service --tcp=80:80
- k get pv
+k get pv
+echo -n "myuser" | base64
+k apply -f .
+k rollout restart deployment/my-db
+k rollout status deployment/my-db
+k get po -o jsonpath='{range .items[*]}{.metadata.name}{.spec.containers[*].resources}{"\n"}'
+k get node --show-labels
+k label node worker2 type=cpu
+# Taints and tolerations
+k describe node | grep Taint
+k get po -n kube-system -o custom-columns=POD_NAME:.metadata.name,TOLERATIONS:.spec.tolerations
