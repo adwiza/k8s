@@ -83,3 +83,55 @@ k label node worker2 type=cpu
 # Taints and tolerations
 k describe node | grep Taint
 k get po -n kube-system -o custom-columns=POD_NAME:.metadata.name,TOLERATIONS:.spec.tolerations
+k rollout history deployment nginx-deployment
+k get rs
+k rollout history deployment nginx-deployment
+k rollout status deployment nginx-deployment
+sudo cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep /etc/kubernetes/pki
+# etcd backup
+sudo ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-backup.db --cacert=/etc/kubernetes/pki/etcd/ca.crt --cacert /etc/kubernetes/pki/etcd/ca.crt --cert /etc/kubernetes/pki/etcd/server.crt --key /etc/kubernetes/pki/etcd/server.key
+sudo ETCDCTL_API=3 etcdctl snapshot status /tmp/etcd-backup.db --write-out=table
+k get all
+sudo ETCDCTL_API=3 etcdctl snapshot restore /tmp/etcd-backup.db --data-dir /var/lib/etcd-backup
+vim /etc/kubernetes/manifests/etcd.yaml
+curl http://localhost:8080/api
+curl http://localhost:8080/api/v1
+curl http://localhost:8080/api/v1/namespaces
+k create rolebinding script-role-binding --role=script-role --serviceaccount=default:myscript
+k get secret myscript-token-mfvfk -o yaml
+echo token | base64 --decode | tr -d "\n"
+TOKEN=$(echo token | base64 --decode | tr -d "\n")
+k congig view
+curl -X GET $SERVER/api --header "Authorization: Bearer $TOKEN" --cacert /etc/kubernetes/pki/ca.crt 
+curl -X GET $SERVER/api/v1/namespaces/default/services --header "Authorization: Bearer $TOKEN" --cacert /etc/kubernetes/pki/ca.crt
+curl -X GET $SERVER/apis/apps/v1/namespaces/default/deployments --header "Authorization: Bearer $TOKEN" --insecure
+curl -X GET $SERVER/apis/apps/v1/namespaces/default/deployments/nginx-deployment --header "Authorization: Bearer $TOKEN" --insecure
+# Upgrade k8s cluster
+kubeadm upgrade apply 1.21.0
+kubectl drain master
+kubectl uncordon master
+#upgrade procedure
+apt-get install -y --allow-change-held-packages kubeadm=1.22.0-00
+kubeadm version
+kubeadm upgrade plan
+kubeadm upgrade apply v1.22.0
+kubectl config use-contex <CONTEXT-NAME>
+k config get-contexts
+k config current-contex
+k config set-contex --current --namespace=kube-system
+# How to check certificate expirations
+ls /etc/kubernetes/pki
+kubeadm certs --help
+sudo kubeadm certs check-expiration
+sudo openssl x509 -in /etc/kubernetes/pki/ca.crt -text -noout
+sudo openssl x509 -in /etc/kubernetes/pki/ca.crt -text -noout | grep Validity -A2
+kubeadm certs renew --help
+
+
+
+
+
+
+
+
+
