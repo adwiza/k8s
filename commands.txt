@@ -126,6 +126,9 @@ sudo kubeadm certs check-expiration
 sudo openssl x509 -in /etc/kubernetes/pki/ca.crt -text -noout
 sudo openssl x509 -in /etc/kubernetes/pki/ca.crt -text -noout | grep Validity -A2
 kubeadm certs renew --help
+# Network policies
+ k exec backend-7787844fc5-9h47z -- sh -c 'nc -v 10.36.0.1 6379'
+ 
 
 
 
